@@ -34,12 +34,12 @@ for f in tqdm(files):
 
 
 plt.figure()
-plt.hist(n_hits, histtype = 'step', bins = 50)
+plt.hist(n_hits, histtype = 'step', bins = 100)
 plt.title('n hits per event for .tof.gaps data')
 plt.ylabel('multiplicity')
 plt.xlabel('number of hits')
 plt.minorticks_on()
 plt.xlim(0, 100)
-plt.set_yscale('log')
+plt.yscale('log')
 plt.savefig('nhits_tof_data.pdf')
 
