@@ -30,6 +30,7 @@ if __name__ == '__main__':
     boring_event_ids = []
     interesting_event_ids = []
     track_trig_event_ids = []
+    evts_no_trkr_hits = 0
     binary_files = go.io.get_telemetry_binaries(args.start_time, args.end_time, data_dir=args.binary_dir)
     for f in tqdm(binary_files, desc = 'reading binary files'):
         treader = go.io.TelemetryPacketReader(str(f))
@@ -39,7 +40,8 @@ if __name__ == '__main__':
                 binary_ev.from_telemetrypacket(pack)
                 binary_evt_id = binary_ev.tof.event_id
                 binary_event_ids.append(binary_evt_id)
-
+                tracker_hits = len(binary_ev.tracker_v2)
+                if tracker_hits == 0: evts_no_trkr_hits +=1 
                 if int(pack.header.packet_type) == 90:
                     boring_event_ids.append(binary_evt_id)
                 elif int(pack.header.packet_type) == 190:
@@ -53,7 +55,7 @@ if __name__ == '__main__':
                 binary_evt_id_no_tof = binary_ev_no_tof.event_id
                 binary_event_ids_no_tof.append(binary_evt_id_no_tof)
 
-
+    print(evts_no_trkr_hits)
     tof_event_ids = []
     tof_run_path = Path(args.raw_dir)
     tof_files = np.array([str(f) for f in ((tof_run_path.glob('*.tof.gaps')))])
@@ -88,7 +90,6 @@ if __name__ == '__main__':
     set_boring_events = set(boring_event_ids)
     set_track_trig_events = set(track_trig_event_ids)
 
-
     intersection = set_binary_event_ids_no_tof & set_tof_event_ids
     count_in_both = len(intersection)
     
@@ -118,3 +119,7 @@ if __name__ == '__main__':
     print(f'event ids missing from tof are:  {only_in_boring_bin}')
     print(f'{percent_track_evts_in_tof}% track trigger only events from binaries present on TOFCPU')
     print(f'event ids missing from tof are: {only_in_track_bin}')
+
+    print(f'Some event ids with no TOF data: {list(set_binary_event_ids_no_tof)[:10]}')
+    print(np.mean(list(set_binary_event_ids_no_tof)))
+    print(np.mean(list(set_tof_event_ids)))
