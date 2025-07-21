@@ -5,6 +5,7 @@ import go_pybindings as gop
 from glob import glob
 import argparse
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def count_missing_entries(sorted_list):
@@ -89,11 +90,12 @@ if __name__ == '__main__':
     set_interesting_events = set(interesting_event_ids)
     set_boring_events = set(boring_event_ids)
     set_track_trig_events = set(track_trig_event_ids)
+    set_binary_event_ids = set(binary_event_ids)
 
     intersection = set_binary_event_ids_no_tof & set_tof_event_ids
     count_in_both = len(intersection)
-    
-    only_in_tof_data = set_tof_event_ids - set_binary_event_ids_no_tof
+
+    only_in_tof_data = set_tof_event_ids - set_binary_event_ids
     count_tof_only = len(only_in_tof_data)
     
     intersect_interesting_evt_w_tof = set_interesting_events & set_tof_event_ids
@@ -116,10 +118,14 @@ if __name__ == '__main__':
 
     print(f'{percent_interesting_evts_in_tof}% interesting events from binaries present on TOFCPU')
     print(f'{percent_boring_evts_in_tof}% boring events from binaries present on TOFCPU')
-    print(f'event ids missing from tof are:  {only_in_boring_bin}')
+    #print(f'event ids missing from tof are:  {only_in_boring_bin}')
     print(f'{percent_track_evts_in_tof}% track trigger only events from binaries present on TOFCPU')
-    print(f'event ids missing from tof are: {only_in_track_bin}')
+    #print(f'event ids missing from tof are: {only_in_track_bin}')
+    
+    print(len(only_in_tof_data))
+    list_tof_only = list(only_in_tof_data)
+    list_tof_only.sort()
+    np.savetxt('tof_only_event_ids.txt', list_tof_only, fmt='%d')
 
-    print(f'Some event ids with no TOF data: {list(set_binary_event_ids_no_tof)[:10]}')
-    print(np.mean(list(set_binary_event_ids_no_tof)))
-    print(np.mean(list(set_tof_event_ids)))
+    #plt.plot(list_tof_only)
+    #plt.savefig('tof_only_event_ids.pdf')
